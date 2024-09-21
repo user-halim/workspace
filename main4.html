@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legendre Conjecture Simulation</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            flex-direction: column;
+        }
+
+        #container {
+            width: 95%;
+            max-width: 1000px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #controls {
+            text-align: center;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        #graph-container {
+            width: 100%;
+            height: 80vh;
+        }
+
+        @media (max-width: 600px) {
+            #graph-container {
+                height: 60vh;
+            }
+
+            #controls {
+                flex-direction: column;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="controls">
+            <label for="range">Choose Range:</label>
+            <select id="range">
+                <option value="100">0 - 100</option>
+                <option value="1000">0 - 1000</option>
+                <option value="10000">0 - 10,000</option>
+                <option value="1000000">0 - 1,000,000</option>
+            </select>
+            <button onclick="drawGraphs()">Draw Graphs</button>
+        </div>
+        <div id="graph-container"></div>
+    </div>
+    
+    <script>
+        // Utility function to check if a number is prime
+        function isPrime(num) {
+            if (num <= 1) return false;
+            for (let i = 2; i <= Math.sqrt(num); i++) {
+                if (num % i === 0) return false;
+            }
+            return true;
+        }
+
+        // Function to draw the graphs
+        function drawGraphs() {
+            const range = parseInt(document.getElementById('range').value);
+            
+            // Data for y = x
+            const xValues = Array.from({ length: range + 1 }, (_, i) => i - range / 2);
+            const yEqualsX = xValues;
+
+            // Data for y = x^2
+            const yEqualsX2 = xValues.map(x => x * x);
+
+            // Data for prime numbers graph (x, y) where y is the nth prime
+            let turn = 1;
+            const primeX = [];
+            const primeY = [];
+            for (let i = 2; turn <= range; i++) {
+                if (isPrime(i)) {
+                    primeX.push(turn);
+                    primeY.push(i);
+                    turn++;
+                }
+            }
+
+            // Use Plotly to draw the graphs
+            const data = [
+                {
+                    x: xValues,
+                    y: yEqualsX,
+                    mode: 'lines',
+                    name: 'y = x',
+                    line: { color: 'red' }
+                },
+                {
+                    x: xValues,
+                    y: yEqualsX2,
+                    mode: 'lines',
+                    name: 'y = x²',
+                    line: { color: 'blue' }
+                },
+                {
+                    x: primeX,
+                    y: primeY,
+                    mode: 'markers+lines',
+                    name: 'Prime Numbers',
+                    line: { color: 'green' },
+                    marker: { size: 6 }
+                }
+            ];
+
+            const layout = {
+                title: 'Legendre Conjecture Simulation',
+                xaxis: {
+                    title: 'x-axis',
+                    showgrid: true,
+                    zeroline: true,
+                    gridcolor: '#e1e1e1',
+                    tickmode: 'linear',
+                    dtick: 1,
+                    range: [-range / 2, range / 2],
+                },
+                yaxis: {
+                    title: 'y-axis',
+                    showgrid: true,
+                    zeroline: true,
+                    gridcolor: '#e1e1e1',
+                    tickmode: 'linear',
+                    dtick: 5,
+                    range: [-10, range] // Adjust range for better visibility
+                },
+                showlegend: true,
+                margin: { t: 50, l: 50, r: 50, b: 50 },
+                hovermode: 'closest',
+                dragmode: 'zoom',
+                autosize: true,
+                responsive: true,
+                paper_bgcolor: 'white',
+                plot_bgcolor: 'white'
+            };
+
+            Plotly.newPlot('graph-container', data, layout, { responsive: true });
+        }
+
+        // Initial plot when the page loads
+        drawGraphs();
+    </script>
+</body>
+</html>
